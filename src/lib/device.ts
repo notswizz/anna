@@ -1,12 +1,12 @@
-import { cookies } from "next/headers";
-
 /**
- * No-auth device identity: the client mints a UUID, keeps it in
- * localStorage, and mirrors it into the `anna_device` cookie so every
- * API call is scoped to this device's own profile and log.
+ * Profile scoping. Currently pinned to a single shared profile — everyone
+ * sees the same log. To bring back per-device profiles (no auth), read the
+ * `anna_device` cookie here and re-enable ensureDeviceId() in the dashboard:
+ *
+ *   import { cookies } from "next/headers";
+ *   const raw = (await cookies()).get("anna_device")?.value ?? "";
+ *   return /^[A-Za-z0-9-]{1,64}$/.test(raw) ? raw : "default";
  */
 export async function getDeviceId(): Promise<string> {
-  const jar = await cookies();
-  const raw = jar.get("anna_device")?.value ?? "";
-  return /^[A-Za-z0-9-]{1,64}$/.test(raw) ? raw : "default";
+  return "default";
 }
