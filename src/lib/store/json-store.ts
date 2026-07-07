@@ -15,16 +15,24 @@ interface DbShape {
 }
 
 const DATA_DIR = path.join(process.cwd(), "data");
-const DB_PATH = path.join(DATA_DIR, "anna.json");
 
 export class JsonFileStore implements AnnaStore {
   private cache: DbShape | null = null;
   private writeQueue: Promise<void> = Promise.resolve();
+  private dbPath: string;
+
+  constructor(deviceId: string) {
+    const safe = deviceId.replace(/[^A-Za-z0-9-]/g, "");
+    this.dbPath = path.join(
+      DATA_DIR,
+      safe === "default" ? "anna.json" : `anna-${safe}.json`
+    );
+  }
 
   private async load(): Promise<DbShape> {
     if (this.cache) return this.cache;
     try {
-      const raw = await fs.readFile(DB_PATH, "utf8");
+      const raw = await fs.readFile(this.dbPath, "utf8");
       this.cache = JSON.parse(raw) as DbShape;
     } catch {
       this.cache = { entries: [], goals: { ...DEFAULT_GOALS } };
@@ -36,9 +44,9 @@ export class JsonFileStore implements AnnaStore {
     // Serialize writes so concurrent requests can't interleave partial files.
     this.writeQueue = this.writeQueue.then(async () => {
       await fs.mkdir(DATA_DIR, { recursive: true });
-      const tmp = DB_PATH + ".tmp";
+      const tmp = this.dbPath + ".tmp";
       await fs.writeFile(tmp, JSON.stringify(db, null, 2), "utf8");
-      await fs.rename(tmp, DB_PATH);
+      await fs.rename(tmp, this.dbPath);
     });
     return this.writeQueue;
   }

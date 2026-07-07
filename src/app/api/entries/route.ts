@@ -1,12 +1,13 @@
 import { NextResponse } from "next/server";
 import { randomUUID } from "crypto";
+import { getDeviceId } from "@/lib/device";
 import { getStore } from "@/lib/store";
 import { sumMacros, type FoodEntry, type FoodItem } from "@/lib/types";
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const date = searchParams.get("date") ?? undefined;
-  const store = getStore();
+  const store = getStore(await getDeviceId());
   const [entries, dates] = await Promise.all([
     store.listEntries(date),
     store.listDates(),
@@ -53,7 +54,7 @@ export async function POST(request: Request) {
       emoji: typeof body.emoji === "string" ? body.emoji.slice(0, 8) : null,
     };
 
-    await getStore().addEntry(entry);
+    await getStore(await getDeviceId()).addEntry(entry);
     return NextResponse.json(entry, { status: 201 });
   } catch (err) {
     console.error("add entry failed:", err);

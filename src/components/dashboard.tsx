@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import * as api from "@/lib/client/api";
+import { ensureDeviceId } from "@/lib/client/device";
 import { dataUrlToThumbnail } from "@/lib/client/image";
 import { addDays, formatDay, todayLocal } from "@/lib/dates";
 import {
@@ -76,6 +77,7 @@ export function Dashboard() {
   useEffect(() => {
     let cancelled = false;
     setLoading(true);
+    ensureDeviceId();
     Promise.all([
       api.getEntries(date),
       api.getGoals(),

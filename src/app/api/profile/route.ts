@@ -1,10 +1,11 @@
 import { NextResponse } from "next/server";
+import { getDeviceId } from "@/lib/device";
 import { getStore } from "@/lib/store";
 import { computeTargets, isValidProfile } from "@/lib/profile";
 import type { Profile } from "@/lib/types";
 
 export async function GET() {
-  const store = getStore();
+  const store = getStore(await getDeviceId());
   const profile = await store.getProfile();
   return NextResponse.json({
     profile,
@@ -31,7 +32,7 @@ export async function PUT(request: Request) {
     goal: body.goal,
   };
 
-  const store = getStore();
+  const store = getStore(await getDeviceId());
   const targets = computeTargets(profile);
   await store.setProfile(profile);
   await store.setGoals({

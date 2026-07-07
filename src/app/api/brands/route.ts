@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { getDeviceId } from "@/lib/device";
 import { getStore } from "@/lib/store";
 
 export interface BrandSuggestion {
@@ -10,7 +11,7 @@ export interface BrandSuggestion {
 
 /** Distinct brands/restaurants from the whole log, most-used first. */
 export async function GET() {
-  const entries = await getStore().listEntries();
+  const entries = await getStore(await getDeviceId()).listEntries();
   const brands = new Map<string, BrandSuggestion>();
 
   for (const entry of entries) {
