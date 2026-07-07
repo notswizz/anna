@@ -45,7 +45,7 @@ Flow: **Composer** (text/photo) → `/api/analyze` → **ReviewCard** (edit/remo
 
 ## Extending it
 
-- **Different storage** (Firestore, SQLite): implement `AnnaStore` in `src/lib/store/` and switch it in `getStore()`. Nothing else changes.
+- **Storage**: Firestore (`anna_entries` / `anna_settings`) when Firebase credentials are set — `FIREBASE_PROJECT_ID` + `FIREBASE_CLIENT_EMAIL` + `FIREBASE_PRIVATE_KEY` (Vercel) or `GOOGLE_APPLICATION_CREDENTIALS` (local path to a service-account JSON). Falls back to a local JSON file (`data/anna.json`) with zero config. Other backends: implement `AnnaStore` in `src/lib/store/`.
 - **Different model**: set `ANNA_MODEL` in `.env.local` (defaults to `gpt-5.1`).
 - **More nutrients**: they're already captured per-item (fiber, sugar, sodium) — surface them in the UI.
 - Obvious next features: weekly trends view, per-meal grouping (breakfast/lunch/dinner), quantity editing in the review card, favorites/repeat meals.

@@ -1,4 +1,5 @@
 import type { FoodEntry, Goals, Profile } from "@/lib/types";
+import { FirestoreStore } from "./firestore-store";
 import { JsonFileStore } from "./json-store";
 
 /**
@@ -22,7 +23,12 @@ let store: AnnaStore | null = null;
 
 export function getStore(): AnnaStore {
   if (!store) {
-    store = new JsonFileStore();
+    // Firestore when credentials are configured (Vercel or local service
+    // account); JSON file fallback keeps zero-config local dev working.
+    const hasFirebase =
+      !!process.env.FIREBASE_PRIVATE_KEY ||
+      !!process.env.GOOGLE_APPLICATION_CREDENTIALS;
+    store = hasFirebase ? new FirestoreStore() : new JsonFileStore();
   }
   return store;
 }
