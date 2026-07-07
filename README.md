@@ -1,36 +1,51 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Anna 🍌
 
-## Getting Started
+A personal food tracker. Tell Anna what you ate — in plain text or with a photo — and she breaks it into items, finds the nutrition facts, and logs it against your daily goals.
 
-First, run the development server:
+For restaurant/chain meals and branded packaged foods, Anna **searches the web for the officially published nutrition facts** (via OpenAI's web_search tool) instead of guessing. Generic/home-cooked food gets a USDA-style estimate.
+
+## Run it
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm install
+npm run dev        # http://localhost:3004
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Requires `ANNA_OPENAI_API_KEY` in `.env.local` (deliberately not `OPENAI_API_KEY` — a machine-wide export of that name would silently override the file).
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## How it works
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```
+src/
+├── app/
+│   ├── page.tsx                  # renders <Dashboard/>
+│   └── api/
+│       ├── analyze/route.ts      # POST {text?, image?} → AnalysisResult
+│       ├── entries/route.ts      # GET ?date= / POST new entry
+│       ├── entries/[id]/route.ts # DELETE
+│       ├── goals/route.ts        # GET / PUT daily goals
+│       └── profile/route.ts      # GET / PUT profile → computes + applies targets
+├── lib/
+│   ├── types.ts                  # FoodItem, FoodEntry, Goals, Profile, AnalysisResult
+│   ├── profile.ts                # Mifflin–St Jeor BMR/TDEE → calorie + macro targets
+│   ├── ai/analyze.ts             # OpenAI Responses API: gpt-5.1 + web_search + strict JSON schema
+│   ├── store/
+│   │   ├── index.ts              # AnnaStore interface — swap backends here
+│   │   └── json-store.ts         # file-backed impl → data/anna.json (gitignored)
+│   └── client/                   # fetch wrappers + client-side image downscaling
+└── components/                   # dashboard, composer, review card, entry tiles, brand logo…
+```
 
-## Learn More
+Flow: **Composer** (text/photo) → `/api/analyze` → **ReviewCard** (edit/remove items) → "Log it" → `/api/entries` → dashboard totals update.
 
-To learn more about Next.js, take a look at the following resources:
+- The log is a **horizontal snap-scroll row of tiles** with filter chips (All / Photos / Brands & restaurants / High protein).
+- Each tile gets an image: your **photo** (stored as a ~420px thumbnail), the **brand/restaurant logo** (Clearbit → Google favicon → initial fallback, driven by the AI-returned `brandDomain`), or the meal **emoji** the AI picks.
+- **Profile** (height, weight, age, sex, activity, goal) → Anna computes BMR/TDEE (Mifflin–St Jeor) and sets daily calorie + macro targets.
+- Photos are downscaled client-side (max 1280px JPEG) before upload.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Extending it
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- **Different storage** (Firestore, SQLite): implement `AnnaStore` in `src/lib/store/` and switch it in `getStore()`. Nothing else changes.
+- **Different model**: set `ANNA_MODEL` in `.env.local` (defaults to `gpt-5.1`).
+- **More nutrients**: they're already captured per-item (fiber, sugar, sodium) — surface them in the UI.
+- Obvious next features: weekly trends view, per-meal grouping (breakfast/lunch/dinner), quantity editing in the review card, favorites/repeat meals.

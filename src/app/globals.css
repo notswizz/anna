@@ -1,26 +1,138 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+@theme {
+  --color-cream: #faf6f0;
+  --color-surface: #ffffff;
+  --color-ink: #201a14;
+  --color-ink-soft: #564d41;
+  --color-muted: #8a7f72;
+  --color-line: #ece4d8;
+  --color-leaf: #3f6b4f;
+  --color-leaf-deep: #33573f;
+  --color-leaf-soft: #e7efe8;
+  --color-amber: #d9a13b;
+  --color-amber-soft: #f7ecd7;
+  --color-clay: #c96f4a;
+  --color-clay-soft: #f7e5dc;
+
+  --font-display: var(--font-fraunces), Georgia, serif;
+  --font-sans: var(--font-geist-sans), system-ui, sans-serif;
+
+  --shadow-soft: 0 1px 2px rgba(32, 26, 20, 0.04),
+    0 10px 28px -14px rgba(32, 26, 20, 0.14);
+  --shadow-lift: 0 2px 4px rgba(32, 26, 20, 0.05),
+    0 18px 44px -18px rgba(32, 26, 20, 0.22);
+  --shadow-pop: 0 1px 2px rgba(32, 26, 20, 0.06),
+    0 6px 16px -6px rgba(63, 107, 79, 0.35);
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+html {
+  -webkit-tap-highlight-color: transparent;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background-color: var(--color-cream);
+  background-image: radial-gradient(
+      52rem 34rem at 8% -6%,
+      rgba(231, 239, 232, 0.85) 0%,
+      transparent 60%
+    ),
+    radial-gradient(
+      44rem 30rem at 104% 2%,
+      rgba(247, 236, 215, 0.8) 0%,
+      transparent 58%
+    ),
+    radial-gradient(
+      50rem 36rem at 50% 112%,
+      rgba(247, 229, 220, 0.5) 0%,
+      transparent 62%
+    );
+  background-attachment: fixed;
+  color: var(--color-ink);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  overscroll-behavior-y: none;
+}
+
+::selection {
+  background: var(--color-leaf-soft);
+}
+
+/* Hide scrollbars on horizontal snap rows (still scrollable) */
+.no-scrollbar {
+  scrollbar-width: none;
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+/* Inline chips inside the composer's contentEditable editor */
+.chip-brand,
+.chip-meal {
+  display: inline-block;
+  margin: 0 1px;
+  padding: 0 0.5em 0.05em;
+  border-radius: 9999px;
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 0.93em;
+  line-height: 1.45;
+  white-space: nowrap;
+  cursor: default;
+}
+
+.chip-brand {
+  color: var(--color-leaf-deep);
+  background: var(--color-leaf-soft);
+  border: 1px solid color-mix(in srgb, var(--color-leaf) 25%, transparent);
+}
+
+.chip-meal {
+  color: #8a5f1d;
+  background: var(--color-amber-soft);
+  border: 1px solid color-mix(in srgb, var(--color-amber) 35%, transparent);
+}
+
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-rise {
+  animation: rise 0.4s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@keyframes sheet-up {
+  from {
+    opacity: 0.6;
+    transform: translateY(48px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-sheet {
+  animation: sheet-up 0.38s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@keyframes pulse-soft {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.45;
+  }
+}
+
+.animate-pulse-soft {
+  animation: pulse-soft 1.4s ease-in-out infinite;
 }
